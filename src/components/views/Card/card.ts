@@ -1,12 +1,11 @@
 import { Component } from "../../base/Component";
 import { ensureElement } from "../../../utils/utils";
-import type { ICardActions } from "../../../types";
 
 export abstract class Card<T> extends Component<T> {
   protected titleElement: HTMLElement;
   protected priceElement: HTMLElement;
 
-  constructor(container: HTMLElement, actions?: ICardActions) {
+  constructor(container: HTMLElement) {
     super(container);
 
     this.titleElement = ensureElement<HTMLElement>(
@@ -18,10 +17,6 @@ export abstract class Card<T> extends Component<T> {
       ".card__price",
       this.container,
     );
-
-    if (actions?.onClick) {
-      this.container.addEventListener("click", actions.onClick);
-    }
   }
 
   set title(value: string) {

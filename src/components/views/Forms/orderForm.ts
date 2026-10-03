@@ -1,14 +1,16 @@
 import { Form } from "./form";
 import { ensureElement } from "../../../utils/utils";
-import type { IFormActions } from "../../../types";
+import type { IFormActions, TPayment } from "../../../types";
 
 export type TOrderForm = {
-  payment: string;
+  payment: TPayment;
   address: string;
+  errors: string;
+  valid: boolean;
 };
 
 export interface IOrderFormActions extends IFormActions {
-  onPaymentChange?: (value: string) => void;
+  onPaymentChange?: (value: TPayment) => void;
 }
 
 export class OrderForm extends Form<TOrderForm> {
@@ -43,7 +45,7 @@ export class OrderForm extends Form<TOrderForm> {
     });
   }
 
-  set payment(value: string) {
+  set payment(value: TPayment) {
     this.cardButton.classList.toggle("button_alt-active", value === "card");
     this.cashButton.classList.toggle("button_alt-active", value === "cash");
   }

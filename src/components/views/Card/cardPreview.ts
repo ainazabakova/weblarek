@@ -5,7 +5,13 @@ import type { IProduct, ICardActions } from "../../../types";
 
 type CategoryKey = keyof typeof categoryMap;
 
-export type TCardPreview = Pick<IProduct, "image" | "category" | "description">;
+export type TCardPreview = Pick<
+  IProduct,
+  "title" | "price" | "image" | "category" | "description"
+> & {
+  buttonText: string;
+  buttonDisabled: boolean;
+};
 
 export class CardPreview extends Card<TCardPreview> {
   protected imageElement: HTMLImageElement;

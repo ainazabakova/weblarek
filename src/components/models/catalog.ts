@@ -21,7 +21,6 @@ export class Catalog {
 
   setSelectedProduct(product: IProduct): void {
     this.selectedProduct = product;
-    this.events.emit("catalog:changed");
     this.events.emit("catalog:selected");
   }
 

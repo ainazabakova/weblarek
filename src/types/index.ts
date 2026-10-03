@@ -1,3 +1,14 @@
+export type ApiPostMethods = "POST" | "PUT" | "DELETE";
+
+export interface IApi {
+  get<T extends object>(uri: string): Promise<T>;
+  post<T extends object>(
+    uri: string,
+    data: object,
+    method?: ApiPostMethods,
+  ): Promise<T>;
+}
+
 export interface IProduct {
   id: string;
   title: string;
@@ -15,7 +26,7 @@ export interface IBuyer {
   phone: string;
 }
 export interface IOrderRequest {
-  payment: string;
+  payment: TPayment;
   address: string;
   email: string;
   phone: string;
@@ -40,20 +51,4 @@ export interface ICardActions {
 export interface IFormActions {
   onSubmit?: () => void;
   onChange?: (field: string, value: string) => void;
-}
-
-export interface IModalActions {
-  onClose?: () => void;
-}
-
-export interface IHeaderActions {
-  onClick?: () => void;
-}
-
-export interface IBasketActions {
-  onCheckout?: () => void;
-}
-
-export interface ISuccessActions {
-  onClose?: () => void;
 }

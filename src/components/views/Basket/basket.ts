@@ -1,11 +1,14 @@
 import { Component } from "../../base/Component";
 import { ensureElement } from "../../../utils/utils";
-import type { IBasketActions } from "../../../types";
 
 interface IBasketData {
   items: HTMLElement[];
   total: number;
   disabled: boolean;
+}
+
+export interface IBasketActions {
+  onCheckout?: () => void;
 }
 
 export class Basket extends Component<IBasketData> {

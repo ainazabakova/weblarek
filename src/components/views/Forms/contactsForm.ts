@@ -5,6 +5,8 @@ import type { IFormActions } from "../../../types";
 export type TContactsForm = {
   email: string;
   phone: string;
+  errors: string;
+  valid: boolean;
 };
 
 export class ContactsForm extends Form<TContactsForm> {

@@ -1,6 +1,5 @@
 import { Component } from "../../base/Component";
 import { ensureElement } from "../../../utils/utils";
-import type { IModalActions } from "../../../types";
 
 interface IModalData {
   content: HTMLElement;
@@ -10,7 +9,7 @@ export class Modal extends Component<IModalData> {
   protected contentElement: HTMLElement;
   protected closeButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, actions?: IModalActions) {
+  constructor(container: HTMLElement) {
     super(container);
 
     this.contentElement = ensureElement<HTMLElement>(
@@ -24,12 +23,12 @@ export class Modal extends Component<IModalData> {
     );
 
     this.closeButton.addEventListener("click", () => {
-      actions?.onClose?.();
+      this.close();
     });
 
     this.container.addEventListener("click", (e) => {
       if (e.target === this.container) {
-        actions?.onClose?.();
+        this.close();
       }
     });
   }

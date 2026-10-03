@@ -1,9 +1,11 @@
 import { Component } from "../../base/Component";
 import { ensureElement } from "../../../utils/utils";
-import type { IHeaderActions } from "../../../types";
 
 interface IHeaderData {
   counter: number;
+}
+export interface IHeaderActions {
+  onClick?: () => void;
 }
 
 export class Header extends Component<IHeaderData> {

@@ -1,6 +1,4 @@
 import "./scss/styles.scss";
-
-import { API_URL } from "./utils/constants";
 import { EventEmitter } from "./components/base/Events";
 import { Api } from "./components/base/Api";
 
@@ -23,7 +21,7 @@ import { Success } from "./components/views/Success/success";
 
 import { ensureElement, cloneTemplate } from "./utils/utils";
 import type { IProduct, IOrderRequest, IOrderResponse } from "./types";
-import { CDN_URL } from "./utils/constants";
+import { CDN_URL, API_URL } from "./utils/constants";
 
 const events = new EventEmitter();
 const api = new Api(API_URL);
@@ -47,9 +45,7 @@ const header = new Header(ensureElement(".header"), {
 
 const gallery = new Gallery(ensureElement(".gallery"));
 
-const modal = new Modal(ensureElement(".modal"), {
-  onClose: () => events.emit("modal:close"),
-});
+const modal = new Modal(ensureElement(".modal"));
 
 const basket = new Basket(cloneTemplate(basketTemplate), {
   onCheckout: () => events.emit("order:open"),
@@ -75,25 +71,27 @@ const contactsForm = new ContactsForm(
 );
 
 const success = new Success(cloneTemplate(successTemplate), {
-  onClose: () => events.emit("modal:close"),
+  onClose: () => modal.close(),
 });
 
-let currentPreview: CardPreview | null = null;
+const preview = new CardPreview(cloneTemplate(cardPreviewTemplate), {
+  onClick: () => events.emit("card:toggle"),
+});
 
-function updatePreviewButton(preview: CardPreview, item: IProduct): void {
+function updatePreviewButton(item: IProduct): {
+  buttonText: string;
+  buttonDisabled: boolean;
+} {
   const inCart = cart.hasItem(item.id);
   const isPriceless = item.price === null;
 
   if (isPriceless) {
-    preview.buttonText = "Недоступно";
-    preview.buttonDisabled = true;
-  } else if (inCart) {
-    preview.buttonText = "Удалить из корзины";
-    preview.buttonDisabled = false;
-  } else {
-    preview.buttonText = "Купить";
-    preview.buttonDisabled = false;
+    return { buttonText: "Недоступно", buttonDisabled: true };
   }
+  if (inCart) {
+    return { buttonText: "Удалить из корзины", buttonDisabled: false };
+  }
+  return { buttonText: "Купить", buttonDisabled: false };
 }
 
 events.on("catalog:changed", () => {
@@ -110,21 +108,18 @@ events.on("catalog:changed", () => {
 
   gallery.render({ catalog: itemCards });
 });
+
 events.on("catalog:selected", () => {
   const item = catalog.getSelectedProduct();
   if (!item) return;
 
-  const preview = new CardPreview(cloneTemplate(cardPreviewTemplate), {
-    onClick: () => events.emit("card:toggle", item),
-  });
+  const buttonState = updatePreviewButton(item);
 
   preview.render({
     ...item,
     image: `${CDN_URL}${item.image}`,
+    ...buttonState,
   });
-
-  updatePreviewButton(preview, item);
-  currentPreview = preview;
 
   modal.render({ content: preview.render() });
   modal.open();
@@ -153,32 +148,34 @@ events.on("cart:changed", () => {
 
 events.on("buyer:changed", () => {
   const data = buyer.getData();
+  const errors = buyer.validate();
+
+  const orderErrors = [errors.payment, errors.address].filter(Boolean);
+  const contactsErrors = [errors.email, errors.phone].filter(Boolean);
 
   orderForm.render({
     payment: data.payment,
     address: data.address,
+    errors: orderErrors.join(", "),
+    valid: orderErrors.length === 0,
   });
+
   contactsForm.render({
     email: data.email,
     phone: data.phone,
+    errors: contactsErrors.join(", "),
+    valid: contactsErrors.length === 0,
   });
-
-  const errors = buyer.validate();
-
-  const orderErrors = [errors.payment, errors.address].filter(Boolean);
-  orderForm.errors = orderErrors.join(", ");
-  orderForm.valid = orderErrors.length === 0;
-
-  const contactsErrors = [errors.email, errors.phone].filter(Boolean);
-  contactsForm.errors = contactsErrors.join(", ");
-  contactsForm.valid = contactsErrors.length === 0;
 });
 
 events.on("card:select", (item: IProduct) => {
   catalog.setSelectedProduct(item);
 });
 
-events.on("card:toggle", (item: IProduct) => {
+events.on("card:toggle", () => {
+  const item = catalog.getSelectedProduct();
+  if (!item) return;
+
   if (cart.hasItem(item.id)) {
     cart.removeItem(item);
   } else {
@@ -186,7 +183,6 @@ events.on("card:toggle", (item: IProduct) => {
   }
 
   modal.close();
-  currentPreview = null;
 });
 
 events.on("cart:remove", (item: IProduct) => {
@@ -243,10 +239,8 @@ events.on("contacts:submit", () => {
     });
 });
 
-events.on("modal:close", () => {
-  currentPreview = null;
-  modal.close();
-});
+buyer.clear();
+cart.clear();
 
 webLarekApi
   .getProducts()

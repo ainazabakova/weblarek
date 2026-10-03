@@ -550,9 +550,11 @@ constructor(container: HTMLFormElement, actions?: IOrderFormActions)
 #### Тип данных
 
 ```ts
-export type TOrderForm = {
-    payment: string;
+export type  TOrderForm = {
+    payment: TPayment;
     address: string;
+    errors: string;
+    valid: boolean;
 };
 ```
 
@@ -564,7 +566,7 @@ export type TOrderForm = {
 
 #### Сеттеры
 
-`set payment(value: string): void` - устанавливает активную кнопку оплаты. Для выделения используется модификатор `button_alt-active`.
+`set payment(value: TPayment): void` - устанавливает активную кнопку оплаты. Для выделения используется модификатор `button_alt-active`.
 `set address(value: string): void` - устанавливает значение поля адреса.
 
 #### Генерируемые события
@@ -605,6 +607,8 @@ constructor(container: HTMLFormElement, actions?: IFormActions)
 export type TContactsForm = {
     email: string;
     phone: string;
+    errors: string;
+    valid: boolean;
 };
 ```
 

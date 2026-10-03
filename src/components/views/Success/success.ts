@@ -1,7 +1,9 @@
 import { Component } from "../../base/Component";
 import { ensureElement } from "../../../utils/utils";
-import type { ISuccessActions } from "../../../types";
 
+export interface ISuccessActions {
+  onClose?: () => void;
+}
 interface ISuccessData {
   total: number;
 }
